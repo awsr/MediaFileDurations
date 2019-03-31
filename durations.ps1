@@ -1,8 +1,7 @@
-$FilesDir = Convert-Path "$PWD"
+$FilesDir = Convert-Path "$PWD" # Specify directory to search.
 $RecursiveSearch = $true # Use $true or $false
-$OutputFile = Convert-Path "$PWD\durations.txt"
-# For multiple types of files, specify as an array. (e.x. $FileExtensions = "*.wav", "*.mp3", "*.ogg")
-$FileExtensions = "*.ogg"
+$OutputFile = Convert-Path "$PWD\durations.txt" # Specify where to save results.
+$FileExtensions = "*.ogg" # Use array to specify multiple types. (e.x. $FileExtensions = "*.wav", "*.mp3", "*.ogg")
 
 # Use Leaf PathType to make sure we're checking for a file and not a directory.
 if (!((test-path .\ffprobe -PathType Leaf) -or (test-path .\ffprobe.exe))) {
