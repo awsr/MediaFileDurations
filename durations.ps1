@@ -67,7 +67,7 @@ if ((test-path .\ffprobe -PathType Leaf) -or (test-path .\ffprobe.exe)) {
 		$Duration = .\ffprobe -v error -show_entries format=duration -of default=nk=1:nw=1 `"$_`"
 		$Output += $_.Name + " " + $Duration
 		$TotalTime += $Duration
-		}
+	}
 	$Output += "Total " + (New-TimeSpan -Seconds $TotalTime).ToString()
 	# Output to file.
 	Out-File -FilePath $OutputFile -InputObject $Output
