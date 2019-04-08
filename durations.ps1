@@ -5,7 +5,7 @@ $FileExtensions = "*.ogg" # Use array to specify multiple types. (e.x. $FileExte
 
 # Use Leaf PathType to make sure we're checking for a file and not a directory.
 if (!((test-path .\ffprobe -PathType Leaf) -or (test-path .\ffprobe.exe))) {
-	Write-Error "Missing ffprobe. Must be in same directory as script." -Category ResourceUnavailable -CategoryReason "Script requires ffprobe to work."
+	Write-Host -BackgroundColor Black -ForegroundColor Yellow "Missing ffprobe. Must be in same directory as script.`n`n"
 	Write-Host -BackgroundColor Black -ForegroundColor Green "Download ffprobe?"
 	$GetFFprobe = Read-Host "(Y)/(N)"
 	if ($GetFFprobe -like "y") {
