@@ -63,7 +63,7 @@ if ((test-path .\ffprobe -PathType Leaf) -or (test-path .\ffprobe.exe)) {
 		$i += 1
 		Write-Progress -Activity "Getting durations of $FileExtensions files." -Status "Processing file $i of $($MediaFileObjects.Length)" -PercentComplete (($i/$MediaFileObjects.Length)*100) -CurrentOperation $_.Name
 		# Works without the forced quotes (`"), but they're used just in case.
-		$Duration = .\ffprobe -v error -show_entries format=duration -of default=nk=1:nw=1 `"$_`"
+		$Duration = .\ffprobe -loglevel error -show_entries format=duration -print_format default=nokey=1:noprint_wrappers=1 `"$_`"
 		$Output += $_.Name + " " + $Duration
 		$TotalTime += $Duration
 	}
