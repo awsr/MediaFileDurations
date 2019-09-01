@@ -12,7 +12,7 @@ if (!((test-path .\ffprobe -PathType Leaf) -or (test-path .\ffprobe.exe))) {
 		Try {
 			# Use API to get latest file binaries.
 			$FFresponse = Invoke-WebRequest -DisableKeepAlive -Method Get -Uri "http://ffbinaries.com/api/v1/version/latest"
-			}
+		}
 		Catch {
 			Write-Host -BackgroundColor Black -ForegroundColor Red "ERROR: Something went wrong with getting ffprobe info."
 			Start-Sleep -s 2
@@ -29,7 +29,10 @@ if (!((test-path .\ffprobe -PathType Leaf) -or (test-path .\ffprobe.exe))) {
 				Break
 			}
 		}
-		else {$Platform = "windows-32"}
+		else {
+			# If not using PowerShell Core then we're running on the built-in Windows PowerShell.
+			$Platform = "windows-32"
+		}
 
 		$FFbinaries = ConvertFrom-Json $FFresponse.Content
 		# Create temporary file for downloading.
@@ -37,7 +40,7 @@ if (!((test-path .\ffprobe -PathType Leaf) -or (test-path .\ffprobe.exe))) {
 		Try {
 			# Download ffprobe binary.
 			Invoke-WebRequest -Uri $FFbinaries.bin.$Platform.ffprobe -OutFile $TempFile
-			}
+		}
 		Catch {
 			Write-Host -BackgroundColor Black -ForegroundColor Red "ERROR: Something went wrong with getting ffprobe binary."
 			Remove-Item $TempFile
@@ -46,9 +49,7 @@ if (!((test-path .\ffprobe -PathType Leaf) -or (test-path .\ffprobe.exe))) {
 		}
 		Expand-Archive -Path $TempFile -DestinationPath "$PWD"
 		# Remove unneeded artifact from OS X zip file creation if not running on OS X.
-		if (! $IsMacOS) {
-			Remove-Item -Recurse "$PWD\__MACOSX" -ErrorAction Ignore
-		}
+		if (! $IsMacOS) {Remove-Item -Recurse "$PWD\__MACOSX" -ErrorAction Ignore}
 		# Remove temporary file.
 		Remove-Item $TempFile
 	}
@@ -59,12 +60,8 @@ if ((test-path .\ffprobe -PathType Leaf) -or (test-path .\ffprobe.exe)) {
 	$Output = @()
 	$TotalTime = 0.0
 	$i = 0
-	if ($RecursiveSearch) {
-		$MediaFileObjects = Get-ChildItem ($FilesDir + "\*") -Recurse -Include $FileExtensions
-	}
-	else {
-		$MediaFileObjects = Get-ChildItem ($FilesDir + "\*") -Include $FileExtensions
-	}
+	if ($RecursiveSearch) {$MediaFileObjects = Get-ChildItem ($FilesDir + "\*") -Recurse -Include $FileExtensions}
+	else {$MediaFileObjects = Get-ChildItem ($FilesDir + "\*") -Include $FileExtensions}
 
 	$MediaFileObjects | ForEach-Object -Process {
 		$i += 1
