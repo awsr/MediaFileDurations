@@ -3,7 +3,7 @@ $RecursiveSearch = $true # Use $true or $false
 $OutputFile = Convert-Path "$PWD\durations.txt" # Specify where to save results.
 $FileExtensions = "*.ogg" # Use array to specify multiple types. (e.x. $FileExtensions = "*.wav", "*.mp3", "*.ogg")
 
-# Use Leaf PathType to make sure we're checking for a file and not a directory.
+# Use Leaf PathType to make sure we're checking for a file and not a directory. Offer to download ffprobe if missing.
 if (!((test-path .\ffprobe -PathType Leaf) -or (test-path .\ffprobe.exe))) {
 	Write-Host -BackgroundColor Black -ForegroundColor Yellow "Missing ffprobe. Must be in same directory as script.`n`n"
 	Write-Host -BackgroundColor Black -ForegroundColor Green "Download ffprobe?"
@@ -41,13 +41,16 @@ if (!((test-path .\ffprobe -PathType Leaf) -or (test-path .\ffprobe.exe))) {
 			Break
 		}
 		Expand-Archive -Path $TempFile -DestinationPath "$PWD"
-		# Remove unneeded artifact from OS X zip file creation.
-		Remove-Item -Recurse "$PWD\__MACOSX" -ErrorAction Ignore
+		# Remove unneeded artifact from OS X zip file creation if not running on OS X.
+		if (! $IsMacOS) {
+			Remove-Item -Recurse "$PWD\__MACOSX" -ErrorAction Ignore
+		}
 		# Remove temporary file.
 		Remove-Item $TempFile
 	}
 }
 
+# Run check again to allow for use immediately after downloading ffprobe.
 if ((test-path .\ffprobe -PathType Leaf) -or (test-path .\ffprobe.exe)) {
 	$Output = @()
 	$TotalTime = 0.0
