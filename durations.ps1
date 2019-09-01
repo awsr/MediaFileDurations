@@ -18,15 +18,19 @@ if (!((test-path .\ffprobe -PathType Leaf) -or (test-path .\ffprobe.exe))) {
 			Start-Sleep -s 2
 			Break
 		}
-		# Set platform.
-		if ($IsWindows) {$Platform = "windows-32"}
-		elseif ($IsLinux) {$Platform = "linux-32"}
-		elseif ($IsMacOS) {$Platform = "osx-64"}
-		else {
-			Write-Host -BackgroundColor Black -ForegroundColor Red "ERROR: Unable to determine OS platform."
-			Start-Sleep -s 2
-			Break
+		# Set platform if using PowerShell Core.
+		if ($PSEdition -eq "Core") {
+			if ($IsWindows) {$Platform = "windows-32"}
+			elseif ($IsLinux) {$Platform = "linux-32"}
+			elseif ($IsMacOS) {$Platform = "osx-64"}
+			else {
+				Write-Host -BackgroundColor Black -ForegroundColor Red "ERROR: Unable to determine OS platform."
+				Start-Sleep -s 2
+				Break
+			}
 		}
+		else {$Platform = "windows-32"}
+
 		$FFbinaries = ConvertFrom-Json $FFresponse.Content
 		# Create temporary file for downloading.
 		$TempFile = New-TemporaryFile
