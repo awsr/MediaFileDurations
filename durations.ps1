@@ -12,24 +12,25 @@ if (! ((Get-Command ffprobe -ErrorAction:Ignore) -or (Get-Command .\ffprobe -Err
 		Try {
 			# Use API to get latest file binaries.
 			$FFresponse = Invoke-WebRequest -DisableKeepAlive -Method Get -Uri "http://ffbinaries.com/api/v1/version/latest"
-		}
-		Catch {
+		} Catch {
 			Write-Host -BackgroundColor Black -ForegroundColor Red "ERROR: Something went wrong with getting ffprobe info."
 			Start-Sleep -s 2
 			Break
 		}
 		# Set platform if using PowerShell Core.
 		if ($PSEdition -eq "Core") {
-			if ($IsWindows) {$Platform = "windows-32"}
-			elseif ($IsLinux) {$Platform = "linux-32"}
-			elseif ($IsMacOS) {$Platform = "osx-64"}
-			else {
+			if ($IsWindows) {
+				$Platform = "windows-32"
+			} elseif ($IsLinux) {
+				$Platform = "linux-32"
+			} elseif ($IsMacOS) {
+				$Platform = "osx-64"
+			} else {
 				Write-Host -BackgroundColor Black -ForegroundColor Red "ERROR: Unable to determine OS platform."
 				Start-Sleep -s 2
 				Break
 			}
-		}
-		else {
+		} else {
 			# If not using PowerShell Core then we're running on the built-in Windows PowerShell.
 			$Platform = "windows-32"
 		}
@@ -40,8 +41,7 @@ if (! ((Get-Command ffprobe -ErrorAction:Ignore) -or (Get-Command .\ffprobe -Err
 		Try {
 			# Download ffprobe binary.
 			Invoke-WebRequest -Uri $FFbinaries.bin.$Platform.ffprobe -OutFile $TempFile
-		}
-		Catch {
+		} Catch {
 			Write-Host -BackgroundColor Black -ForegroundColor Red "ERROR: Something went wrong with getting ffprobe binary."
 			Remove-Item $TempFile
 			Start-Sleep -s 2
@@ -49,7 +49,9 @@ if (! ((Get-Command ffprobe -ErrorAction:Ignore) -or (Get-Command .\ffprobe -Err
 		}
 		Expand-Archive -Path $TempFile -DestinationPath "$PWD"
 		# Remove unneeded artifact from OS X zip file creation if not running on OS X.
-		if (! $IsMacOS) {Remove-Item -Recurse "$PWD\__MACOSX" -ErrorAction Ignore}
+		if (! $IsMacOS) {
+			Remove-Item -Recurse "$PWD\__MACOSX" -ErrorAction Ignore
+		}
 		# Remove temporary file.
 		Remove-Item $TempFile
 	}
@@ -60,8 +62,11 @@ if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($UseInstalled = $true)) -o
 	$Output = @()
 	$TotalTime = 0.0
 	$i = 0
-	if ($RecursiveSearch) {$MediaFileObjects = Get-ChildItem ($FilesDir + "\*") -Recurse -Include $FileExtensions}
-	else {$MediaFileObjects = Get-ChildItem ($FilesDir + "\*") -Include $FileExtensions}
+	if ($RecursiveSearch) {
+		$MediaFileObjects = Get-ChildItem ($FilesDir + "\*") -Recurse -Include $FileExtensions
+	} else {
+		$MediaFileObjects = Get-ChildItem ($FilesDir + "\*") -Include $FileExtensions
+	}
 
 	$MediaFileObjects | ForEach-Object -Process {
 		$i += 1
