@@ -3,8 +3,8 @@ $RecursiveSearch = $true # Use $true or $false
 $OutputFile = Convert-Path "$PWD\durations.txt" # Specify where to save results.
 $FileExtensions = "*.ogg" # Use array to specify multiple types. (e.x. $FileExtensions = "*.wav", "*.mp3", "*.ogg")
 
-# Use Leaf PathType to make sure we're checking for a file and not a directory. Offer to download ffprobe if missing.
-if (!((test-path .\ffprobe -PathType Leaf) -or (test-path .\ffprobe.exe))) {
+# Check for ffprobe in system path and current directory. Offer to download ffprobe if missing.
+if (! ((Get-Command ffprobe -ErrorAction:Ignore) -or (Get-Command .\ffprobe -ErrorAction:Ignore)) ) {
 	Write-Host -BackgroundColor Black -ForegroundColor Yellow "Missing ffprobe. Must be in same directory as script.`n`n"
 	Write-Host -BackgroundColor Black -ForegroundColor Green "Download ffprobe?"
 	$GetFFprobe = Read-Host "(Y)/(N)"
@@ -55,8 +55,8 @@ if (!((test-path .\ffprobe -PathType Leaf) -or (test-path .\ffprobe.exe))) {
 	}
 }
 
-# Run check again to allow for use immediately after downloading ffprobe.
-if ((test-path .\ffprobe -PathType Leaf) -or (test-path .\ffprobe.exe)) {
+# Run check again to allow for use immediately after downloading ffprobe. Check and mark if using installed version of ffprobe.
+if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($UseInstalled = $true)) -or (Get-Command .\ffprobe -ErrorAction:Ignore) ) {
 	$Output = @()
 	$TotalTime = 0.0
 	$i = 0
@@ -67,7 +67,11 @@ if ((test-path .\ffprobe -PathType Leaf) -or (test-path .\ffprobe.exe)) {
 		$i += 1
 		Write-Progress -Activity "Getting durations of $FileExtensions files." -Status "Processing file $i of $($MediaFileObjects.Length)" -PercentComplete (($i/$MediaFileObjects.Length)*100) -CurrentOperation $_.Name
 		# Works without the forced quotes (`"), but they're used just in case.
-		$Duration = .\ffprobe -loglevel error -show_entries format=duration -print_format default=nokey=1:noprint_wrappers=1 `"$_`"
+		if ($UseInstalled) {
+			$Duration = ffprobe -loglevel error -show_entries format=duration -print_format default=nokey=1:noprint_wrappers=1 `"$_`"
+		} else {
+			$Duration = .\ffprobe -loglevel error -show_entries format=duration -print_format default=nokey=1:noprint_wrappers=1 `"$_`"
+		}
 		$Output += $_.Name + " " + $Duration
 		$TotalTime += $Duration
 	}
