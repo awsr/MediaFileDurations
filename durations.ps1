@@ -1,10 +1,10 @@
 $FilesDir = Convert-Path "$PWD" # Specify directory to search.
 $RecursiveSearch = $true # Use $true or $false
-$OutputFile = Convert-Path "$PWD\durations.txt" # Specify where to save results.
+$OutputFile = Convert-Path "$PWD/durations.txt" # Specify where to save results.
 $FileExtensions = "*.ogg" # Use array to specify multiple types. (e.x. $FileExtensions = "*.wav", "*.mp3", "*.ogg")
 
 # Check for ffprobe in system path and current directory. Offer to download ffprobe if missing.
-if (! ((Get-Command ffprobe -ErrorAction Ignore) -or (Get-Command .\ffprobe -ErrorAction Ignore)) ) {
+if (! ((Get-Command ffprobe -ErrorAction Ignore) -or (Get-Command ./ffprobe -ErrorAction Ignore)) ) {
 	Write-Host -BackgroundColor Black -ForegroundColor Yellow "Missing ffprobe. Must be in same directory as script.`n`n"
 	Write-Host -BackgroundColor Black -ForegroundColor Green "Download ffprobe?"
 	$GetFFprobe = Read-Host "(Y)/(N)"
@@ -50,7 +50,7 @@ if (! ((Get-Command ffprobe -ErrorAction Ignore) -or (Get-Command .\ffprobe -Err
 		Expand-Archive -Path $TempFile -DestinationPath "$PWD"
 		# Remove unneeded artifact from OS X zip file creation if not running on OS X.
 		if (! $IsMacOS) {
-			Remove-Item -Recurse "$PWD\__MACOSX" -ErrorAction Ignore
+			Remove-Item -Recurse "$PWD/__MACOSX" -ErrorAction Ignore
 		}
 		# Remove temporary file.
 		Remove-Item $TempFile
@@ -58,14 +58,14 @@ if (! ((Get-Command ffprobe -ErrorAction Ignore) -or (Get-Command .\ffprobe -Err
 }
 
 # Run check again to allow for use immediately after downloading ffprobe. Check and mark if using installed version of ffprobe.
-if ( ((Get-Command ffprobe -ErrorAction Ignore) -and ($UseInstalled = $true)) -or (Get-Command .\ffprobe -ErrorAction Ignore) ) {
+if ( ((Get-Command ffprobe -ErrorAction Ignore) -and ($UseInstalled = $true)) -or (Get-Command ./ffprobe -ErrorAction Ignore) ) {
 	$Output = @()
 	$TotalTime = 0.0
 	$i = 0
 	if ($RecursiveSearch) {
-		$MediaFileObjects = Get-ChildItem ($FilesDir + "\*") -File -Recurse -Include $FileExtensions
+		$MediaFileObjects = Get-ChildItem ($FilesDir + "/*") -File -Recurse -Include $FileExtensions
 	} else {
-		$MediaFileObjects = Get-ChildItem ($FilesDir + "\*") -File -Include $FileExtensions
+		$MediaFileObjects = Get-ChildItem ($FilesDir + "/*") -File -Include $FileExtensions
 	}
 
 	$MediaFileObjects | ForEach-Object -Process {
@@ -75,7 +75,7 @@ if ( ((Get-Command ffprobe -ErrorAction Ignore) -and ($UseInstalled = $true)) -o
 		if ($UseInstalled) {
 			$Duration = ffprobe -loglevel error -show_entries format=duration -print_format default=nokey=1:noprint_wrappers=1 $_.FullName
 		} else {
-			$Duration = .\ffprobe -loglevel error -show_entries format=duration -print_format default=nokey=1:noprint_wrappers=1 $_.FullName
+			$Duration = ./ffprobe -loglevel error -show_entries format=duration -print_format default=nokey=1:noprint_wrappers=1 $_.FullName
 		}
 		$Output += $_.Name + " " + $Duration
 		$TotalTime += $Duration
