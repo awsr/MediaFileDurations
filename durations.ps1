@@ -63,7 +63,7 @@ if ( ((Get-Command ffprobe -ErrorAction Ignore) -and ($UseInstalled = $true)) -o
 	$TotalTime = 0.0
 	$i = 0
 	if ($RecursiveSearch) {
-		$MediaFileObjects = Get-ChildItem ($FilesDir + "/*") -File -Recurse -Include $FileExtensions
+		$MediaFileObjects = Get-ChildItem $FilesDir -File -Recurse -Include $FileExtensions
 	} else {
 		$MediaFileObjects = Get-ChildItem ($FilesDir + "/*") -File -Include $FileExtensions
 	}
