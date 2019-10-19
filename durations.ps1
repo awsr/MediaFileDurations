@@ -5,7 +5,7 @@ $FileExtensions = "*.ogg" # Use array to specify multiple types. (e.x. $FileExte
 
 # Check for ffprobe in system path and current directory. Offer to download ffprobe if missing.
 if (! ((Get-Command ffprobe -ErrorAction Ignore) -or (Get-Command ./ffprobe -ErrorAction Ignore)) ) {
-	Write-Host -BackgroundColor Black -ForegroundColor Yellow "Missing ffprobe. Must be in same directory as script.`n`n"
+	Write-Host -BackgroundColor Black -ForegroundColor Yellow "Missing ffprobe. Not found in PATH or local directories.`n`n"
 	Write-Host -BackgroundColor Black -ForegroundColor Green "Download ffprobe?"
 	$GetFFprobe = Read-Host "(Y)/(N)"
 	if ($GetFFprobe -like "y") {
