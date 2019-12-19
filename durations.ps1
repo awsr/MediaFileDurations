@@ -60,7 +60,7 @@ if (! ((Get-Command ffprobe -ErrorAction Ignore) -or (Get-Command ./ffprobe -Err
 # Run check again to allow for use immediately after downloading ffprobe. Check and mark if using installed version of ffprobe.
 if ( ((Get-Command ffprobe -ErrorAction Ignore) -and ($UseInstalled = $true)) -or (Get-Command ./ffprobe -ErrorAction Ignore) ) {
 	$Output = @()
-	$TotalTime = 0.0
+	[decimal] $TotalTime = 0.0
 	$i = 0
 	if ($RecursiveSearch) {
 		$MediaFileObjects = Get-ChildItem $FilesDir -File -Recurse -Include $FileExtensions
@@ -72,9 +72,9 @@ if ( ((Get-Command ffprobe -ErrorAction Ignore) -and ($UseInstalled = $true)) -o
 		$i += 1
 		Write-Progress -Activity "Getting durations of $FileExtensions files." -Status "Processing file $i of $($MediaFileObjects.Length)" -PercentComplete (($i/$MediaFileObjects.Length)*100) -CurrentOperation $_.Name
 		if ($UseInstalled) {
-			$Duration = ffprobe -loglevel error -show_entries format=duration -print_format default=nokey=1:noprint_wrappers=1 $_.FullName
+			[decimal] $Duration = ffprobe -loglevel error -show_entries format=duration -print_format default=nokey=1:noprint_wrappers=1 $_.FullName
 		} else {
-			$Duration = ./ffprobe -loglevel error -show_entries format=duration -print_format default=nokey=1:noprint_wrappers=1 $_.FullName
+			[decimal] $Duration = ./ffprobe -loglevel error -show_entries format=duration -print_format default=nokey=1:noprint_wrappers=1 $_.FullName
 		}
 		$Output += $_.Name + " " + $Duration
 		$TotalTime += $Duration
