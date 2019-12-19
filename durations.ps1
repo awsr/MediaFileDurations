@@ -1,6 +1,6 @@
-$FilesDir = Convert-Path "$PWD" # Specify directory to search.
+$FilesDir = Convert-Path "$PWD" -ErrorAction:Stop # Specify directory to search. Stop if invalid.
 $RecursiveSearch = $true # Use $true or $false
-$OutputFile = Convert-Path "$PWD/durations.txt" # Specify where to save results.
+$OutputFile = "$PWD/durations.txt" # Specify where to save results.
 $FileExtensions = "*.ogg" # Use array to specify multiple types. (e.x. $FileExtensions = "*.wav", "*.mp3", "*.ogg")
 
 # Check for ffprobe in system path and current directory. Offer to download ffprobe if missing.
