@@ -93,6 +93,7 @@ if ( ((Get-Command ffprobe -ErrorAction Ignore) -and ($ffPath = "ffprobe")) -or 
             # Create object to add to array.
             $obj = [pscustomobject]@{
                 FullName = $_.FullName
+                Name = $_.Name
                 LastWriteTime = $_.LastWriteTime
                 Duration = $Duration
             }
@@ -107,7 +108,7 @@ if ( ((Get-Command ffprobe -ErrorAction Ignore) -and ($ffPath = "ffprobe")) -or 
     # Update total time member.
     $ProcessedArray.TotalTime = $TotalTime
     # Prepare data for output to file
-    $Output = $ProcessedArray | Select-Object -Property @{label="Filename";expression={Split-Path $_.FullName -Leaf}}, Duration | Out-String
+    $Output = $ProcessedArray | Select-Object -Property Name,Duration | Out-String
     if ($IncludeFormattedTotal){
         $Output += "Total " + (New-TimeSpan -Seconds $TotalTime).ToString()
     }
