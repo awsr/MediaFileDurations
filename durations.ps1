@@ -1,9 +1,11 @@
 $FilesDir = Convert-Path "$PWD" -ErrorAction:Stop # Specify directory to search. Stop if invalid.
-$RecursiveSearch = $true # Use $true or $false
-$IncludeFormattedTotal = $true # Include total time in the output file.
-$xmlFile = "$PWD/MFDexport.xml" # For remembering which files were already processed.
+# === Settings ===
+$RecursiveSearch = $true # Search sub-directories?
+$IncludeFormattedTotal = $true # Include total time in the output file?
+$FileExtensions = "*.ogg" # File types to include. Use array to specify multiple types. (e.x. $FileExtensions = "*.wav","*.mp3","*.ogg")
+# === Paths ===
+$xmlFile = "$PWD/MFDexport.xml" # Specify where to save processed file info for speeding up future script runs.
 $OutputFile = "$PWD/durations.txt" # Specify where to save results.
-$FileExtensions = "*.ogg" # Use array to specify multiple types. (e.x. $FileExtensions = "*.wav", "*.mp3", "*.ogg")
 
 # Check for ffprobe in system path and current directory. Offer to download ffprobe if missing.
 if (! ((Get-Command ffprobe -ErrorAction Ignore) -or (Get-Command ./ffprobe -ErrorAction Ignore)) ) {
