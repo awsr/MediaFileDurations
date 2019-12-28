@@ -62,7 +62,7 @@ if (! ((Get-Command ffprobe -ErrorAction Ignore) -or (Get-Command ./ffprobe -Err
 # Run check again to allow for use immediately after downloading ffprobe. Store which command was successful.
 if ( ((Get-Command ffprobe -ErrorAction Ignore) -and ($ffPath = "ffprobe")) -or ((Get-Command ./ffprobe -ErrorAction Ignore) -and ($ffPath = "./ffprobe")) ) {
     [decimal]$TotalTime = 0.0
-    $i = 0
+    [int]$Progress = 0
 
     [System.Collections.ArrayList]$ProcessedArray = @()
     Add-Member -InputObject $ProcessedArray -NotePropertyName TotalTime -NotePropertyValue $TotalTime
@@ -85,8 +85,7 @@ if ( ((Get-Command ffprobe -ErrorAction Ignore) -and ($ffPath = "ffprobe")) -or 
     }
 
     $MediaFileObjects.ForEach({
-        $i += 1
-        Write-Progress -Activity "Getting durations of $FileExtensions files." -Status "Processing file $i of $($MediaFileObjects.Length)" -PercentComplete (($i/$MediaFileObjects.Length)*100) -CurrentOperation $_.Name
+        Write-Progress -Activity "Getting durations of $FileExtensions files." -Status "Processing file $($Progress + 1) of $($MediaFileObjects.Length)" -PercentComplete (($Progress/$MediaFileObjects.Length)*100) -CurrentOperation $_.Name
         # Check to see if file was already processed. If not, process it.
         # TODO: Use LastWriteTime to determine if file was changed and process/update it.
         if ($_.FullName -notin $ProcessedArray.FullName){
@@ -102,6 +101,7 @@ if ( ((Get-Command ffprobe -ErrorAction Ignore) -and ($ffPath = "ffprobe")) -or 
             # Add object to array.
             $ProcessedArray.Add($obj) | Out-Null
         }
+        $Progress += 1
     })
 
     # Update total time member.
