@@ -7,6 +7,9 @@ $FileExtensions = "*.ogg" # File types to include. Use array to specify multiple
 $xmlFile = "$PWD/MFDexport.xml" # Specify where to save processed file info for speeding up future script runs.
 $OutputFile = "$PWD/durations.txt" # Specify where to save results.
 
+
+$searchArgs = @{File = $true; Recurse = $RecursiveSearch; Include = $FileExtensions}
+
 # Check for ffprobe in system path and current directory. Offer to download ffprobe if missing.
 if (! ((Get-Command ffprobe -ErrorAction Ignore) -or (Get-Command ./ffprobe -ErrorAction Ignore)) ) {
     Write-Host -BackgroundColor Black -ForegroundColor Yellow "Missing ffprobe. Not found in PATH or local directories.`n`n"
@@ -80,11 +83,7 @@ if ( ((Get-Command ffprobe -ErrorAction Ignore) -and ($ffPath = "ffprobe")) -or 
         }
     }
 
-    if ($RecursiveSearch) {
-        $MediaFileObjects = Get-ChildItem $FilesDir -File -Recurse -Include $FileExtensions
-    } else {
-        $MediaFileObjects = Get-ChildItem ($FilesDir + "/*") -File -Include $FileExtensions
-    }
+    $MediaFileObjects = Get-ChildItem ($FilesDir + "/*") @searchArgs
 
     $MediaFileObjects.ForEach({
         Write-Progress -Activity "Getting durations of $FileExtensions files." -Status "Processing file $($Progress + 1) of $($MediaFileObjects.Length)" -PercentComplete (($Progress/$MediaFileObjects.Length)*100) -CurrentOperation $_.Name
