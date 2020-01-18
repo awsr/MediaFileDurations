@@ -73,7 +73,9 @@ if (-not ((Get-Command ffprobe -ErrorAction:Ignore) -or (Get-Command ./ffprobe -
         }
 
         # Remove temporary file.
-        Remove-Item $TempFile
+        Finally {
+            Remove-Item $TempFile -ErrorAction:Ignore
+        }
     }
 }
 
