@@ -27,15 +27,24 @@ if (-not ((Get-Command ffprobe -ErrorAction:Ignore) -or (Get-Command ./ffprobe -
             Break
         }
 
+        # Set architecture string based on whether 64-bit or 32-bit OS.
+        if ([System.Environment]::Is64BitOperatingSystem) {
+            $OSArch = "64"
+        }
+        else {
+            $OSArch = "32"
+        }
+
         # Set platform if using PowerShell Core.
         if ($PSEdition -eq "Core") {
             if ($IsWindows) {
-                $Platform = "windows-32"
+                $Platform = "windows-$OSArch"
             }
             elseif ($IsLinux) {
-                $Platform = "linux-32"
+                $Platform = "linux-$OSArch"
             }
             elseif ($IsMacOS) {
+                # Mac only has 64-bit version.
                 $Platform = "osx-64"
             }
             else {
@@ -46,7 +55,7 @@ if (-not ((Get-Command ffprobe -ErrorAction:Ignore) -or (Get-Command ./ffprobe -
         }
         else {
             # If not using PowerShell Core then we're running on the built-in Windows PowerShell.
-            $Platform = "windows-32"
+            $Platform = "windows-$OSArch"
         }
 
         $FFbinaries = ConvertFrom-Json $FFresponse.Content
