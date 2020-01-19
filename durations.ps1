@@ -66,23 +66,21 @@ if (-not ((Get-Command ffprobe -ErrorAction:Ignore) -or (Get-Command ./ffprobe -
         Try {
             # Download ffprobe binary.
             Invoke-WebRequest -Uri $FFbinaries.bin.$Platform.ffprobe -OutFile $TempFile
+
+            Expand-Archive -Path $TempFile -DestinationPath "$PWD"
+
+            # Remove unneeded artifact from OS X zip file creation if not running on OS X.
+            if (-not $IsMacOS) {
+                Remove-Item -Recurse "$PWD/__MACOSX" -ErrorAction:Ignore
+            }
         }
         Catch {
             Write-Host -BackgroundColor Black -ForegroundColor Red "ERROR: Something went wrong with getting ffprobe binary."
-            Remove-Item $TempFile
             Start-Sleep -s 2
             Break
         }
-
-        Expand-Archive -Path $TempFile -DestinationPath "$PWD"
-
-        # Remove unneeded artifact from OS X zip file creation if not running on OS X.
-        if (-not $IsMacOS) {
-            Remove-Item -Recurse "$PWD/__MACOSX" -ErrorAction:Ignore
-        }
-
-        # Remove temporary file.
         Finally {
+            # Remove temporary file.
             Remove-Item $TempFile -ErrorAction:Ignore
         }
     }
