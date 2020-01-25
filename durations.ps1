@@ -19,7 +19,7 @@ if (-not ((Get-Command ffprobe -ErrorAction:Ignore) -or (Get-Command ./ffprobe -
     if ($GetFFprobe -like "y") {
         Try {
             # Use API to get latest file binaries.
-            $FFresponse = Invoke-WebRequest -DisableKeepAlive -Method Get -Uri "http://ffbinaries.com/api/v1/version/latest"
+            $FFresponse = Invoke-WebRequest -DisableKeepAlive -Method Get -Uri "http://ffbinaries.com/api/v1/version/latest" -ErrorAction:Stop
         }
         Catch {
             Write-Host -BackgroundColor Black -ForegroundColor Red "ERROR: Something went wrong with getting ffprobe info."
@@ -65,9 +65,9 @@ if (-not ((Get-Command ffprobe -ErrorAction:Ignore) -or (Get-Command ./ffprobe -
 
         Try {
             # Download ffprobe binary.
-            Invoke-WebRequest -Uri $FFbinaries.bin.$Platform.ffprobe -OutFile $TempFile
+            Invoke-WebRequest -Uri $FFbinaries.bin.$Platform.ffprobe -OutFile $TempFile -ErrorAction:Stop
 
-            Expand-Archive -Path $TempFile -DestinationPath "$PWD"
+            Expand-Archive -Path $TempFile -DestinationPath "$PWD" -ErrorAction:Stop
 
             # Remove unneeded artifact from OS X zip file creation if not running on OS X.
             if (-not $IsMacOS) {
@@ -97,7 +97,7 @@ if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($ffPath = "ffprobe")) -or 
     # If XML file exists, attempt to import it.
     if (Test-Path -Path $xmlFile -PathType Leaf) {
         Try {
-            [System.Collections.ArrayList]$ProcessedArray = Import-Clixml $xmlFile
+            [System.Collections.ArrayList]$ProcessedArray = Import-Clixml $xmlFile -ErrorAction:Stop
             $TotalTime = $ProcessedArray.TotalTime
         }
         Catch {
