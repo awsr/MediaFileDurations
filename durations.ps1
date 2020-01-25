@@ -9,6 +9,7 @@ $OutputFile = "$PWD/durations.txt" # Specify where to save results.
 
 
 $searchArgs = @{File = $true; Recurse = $RecursiveSearch; Include = $FileExtensions}
+$GTD = {[math]::Round(($this.Duration | Measure-Object -Sum).Sum, 4)}
 
 # Check for ffprobe in system path and current directory. Offer to download ffprobe if missing.
 if (-not ((Get-Command ffprobe -ErrorAction:Ignore) -or (Get-Command ./ffprobe -ErrorAction:Ignore)) ) {
@@ -88,23 +89,22 @@ if (-not ((Get-Command ffprobe -ErrorAction:Ignore) -or (Get-Command ./ffprobe -
 
 # Run check again to allow for use immediately after downloading ffprobe. Store which command was successful.
 if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($ffPath = "ffprobe")) -or ((Get-Command ./ffprobe -ErrorAction:Ignore) -and ($ffPath = "./ffprobe")) ) {
-    $TotalTime = 0.0
     $Progress = 0
 
     [System.Collections.ArrayList]$ProcessedArray = @()
-    Add-Member -InputObject $ProcessedArray -NotePropertyName TotalTime -NotePropertyValue $TotalTime
 
     # If XML file exists, attempt to import it.
     if (Test-Path -Path $xmlFile -PathType Leaf) {
         Try {
             [System.Collections.ArrayList]$ProcessedArray = Import-Clixml $xmlFile -ErrorAction:Stop
-            $TotalTime = $ProcessedArray.TotalTime
         }
         Catch {
             Write-Host -BackgroundColor Black -ForegroundColor Yellow "Error importing previously processed files."
             Write-Host -BackgroundColor Black -ForegroundColor Yellow "Continuing without previous data."
         }
     }
+
+    Add-Member -InputObject $ProcessedArray -MemberType ScriptMethod -Name "GetTotalDuration" -Value $GTD
 
     $MediaFileObjects = Get-ChildItem ($FilesDir + "/*") @searchArgs
 
@@ -124,9 +124,6 @@ if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($ffPath = "ffprobe")) -or 
                 Duration = $Duration
             }
 
-            # Update total time variable.
-            $TotalTime += $Duration
-
             # Add object to array.
             $ProcessedArray.Add($obj) | Out-Null
         }
@@ -134,14 +131,11 @@ if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($ffPath = "ffprobe")) -or 
         $Progress += 1
     })
 
-    # Update total time member.
-    $ProcessedArray.TotalTime = $TotalTime
-
     # Prepare data for output to file
     $Output = $ProcessedArray | Select-Object -Property Name,Duration | Out-String
 
     if ($IncludeFormattedTotal) {
-        $Output += "Total " + (New-TimeSpan -Seconds $TotalTime).ToString()
+        $Output += "Total " + (New-TimeSpan -Seconds $ProcessedArray.GetTotalDuration()).ToString()
     }
 
     # Output to file while trimming excess whitespace.
