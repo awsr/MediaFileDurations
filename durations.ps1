@@ -88,8 +88,8 @@ if (-not ((Get-Command ffprobe -ErrorAction:Ignore) -or (Get-Command ./ffprobe -
 
 # Run check again to allow for use immediately after downloading ffprobe. Store which command was successful.
 if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($ffPath = "ffprobe")) -or ((Get-Command ./ffprobe -ErrorAction:Ignore) -and ($ffPath = "./ffprobe")) ) {
-    [decimal]$TotalTime = 0.0
-    [int]$Progress = 0
+    $TotalTime = 0.0
+    $Progress = 0
 
     [System.Collections.ArrayList]$ProcessedArray = @()
     Add-Member -InputObject $ProcessedArray -NotePropertyName TotalTime -NotePropertyValue $TotalTime
@@ -114,7 +114,7 @@ if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($ffPath = "ffprobe")) -or 
         # Check to see if file was already processed. If not, process it.
         # TODO: Use LastWriteTime to determine if file was changed and process/update it.
         if ($_.FullName -notin $ProcessedArray.FullName) {
-            [decimal]$Duration = & $ffPath -loglevel error -show_entries format=duration -print_format default=nokey=1:noprint_wrappers=1 $_.FullName
+            $Duration = & $ffPath -loglevel error -show_entries format=duration -print_format default=nokey=1:noprint_wrappers=1 $_.FullName
 
             # Create object to add to array.
             $obj = [pscustomobject]@{
