@@ -9,7 +9,7 @@ $OutputFile = "$PWD/durations.txt" # Specify where to save results.
 
 
 $searchArgs = @{File = $true; Recurse = $RecursiveSearch; Include = $FileExtensions}
-$GTD = {[math]::Round(($this.Duration | Measure-Object -Sum).Sum, 4)}
+$TD = {[math]::Round(($this.Duration | Measure-Object -Sum).Sum, 4)}
 
 # Check for ffprobe in system path and current directory. Offer to download ffprobe if missing.
 if (-not ((Get-Command ffprobe -ErrorAction:Ignore) -or (Get-Command ./ffprobe -ErrorAction:Ignore)) ) {
@@ -104,7 +104,7 @@ if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($ffPath = "ffprobe")) -or 
         }
     }
 
-    Add-Member -InputObject $ProcessedArray -MemberType ScriptMethod -Name "GetTotalDuration" -Value $GTD
+    Add-Member -InputObject $ProcessedArray -MemberType ScriptMethod -Name "TotalDuration" -Value $TD
 
     $MediaFileObjects = Get-ChildItem ($FilesDir + "/*") @searchArgs
 
@@ -135,7 +135,7 @@ if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($ffPath = "ffprobe")) -or 
     $Output = $ProcessedArray | Select-Object -Property Name,Duration | Out-String
 
     if ($IncludeFormattedTotal) {
-        $Output += "Total " + (New-TimeSpan -Seconds $ProcessedArray.GetTotalDuration()).ToString()
+        $Output += "Total " + (New-TimeSpan -Seconds $ProcessedArray.TotalDuration()).ToString()
     }
 
     # Output to file while trimming excess whitespace.
