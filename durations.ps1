@@ -114,7 +114,7 @@ if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($ffPath = "ffprobe")) -or 
         # Check to see if file was already processed. If not, process it.
         # TODO: Use LastWriteTime to determine if file was changed and process/update it.
         if ($_.FullName -notin $ProcessedArray.FullName) {
-            $Duration = & $ffPath -loglevel error -show_entries format=duration -print_format default=nokey=1:noprint_wrappers=1 $_.FullName
+            [double]$Duration = & $ffPath -loglevel error -show_entries format=duration -print_format default=nokey=1:noprint_wrappers=1 $_.FullName
 
             # Create object to add to array.
             $obj = [pscustomobject]@{
