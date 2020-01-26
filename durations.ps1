@@ -155,6 +155,4 @@ if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($ffPath = "ffprobe")) -or 
     
     # Export data for the next time the script is run.
     Export-Clixml -InputObject $ProcessedArray -Path $xmlFile
-
-    Start-Sleep -m 500
 }
