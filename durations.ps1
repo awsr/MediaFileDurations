@@ -111,8 +111,8 @@ if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($ffPath = "ffprobe")) -or 
     $MediaFileObjects.ForEach({
         Write-Progress -Activity "Getting durations of $FileExtensions files." -Status "Processing file $($Progress + 1) of $($MediaFileObjects.Length)" -PercentComplete (($Progress/$MediaFileObjects.Length)*100) -CurrentOperation $_.Name
 
-        # Check to see if file was already processed. If not, process it.
-        # TODO: Use LastWriteTime to determine if file was changed and process/update it.
+        # Check to see if file was already processed. If not, process and add it.
+        # If newer version of file exists, process and update it.
         if ($_.FullName -notin $ProcessedArray.FullName) {
             [double]$Duration = & $ffPath -loglevel error -show_entries format=duration -print_format default=nokey=1:noprint_wrappers=1 $_.FullName
 
@@ -126,6 +126,18 @@ if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($ffPath = "ffprobe")) -or 
 
             # Add object to array.
             $ProcessedArray.Add($obj) | Out-Null
+        }
+        else {
+            # Get the index value for the whole object based on the index of the FullName value from all processed FullName members.
+            $IndexVal = $ProcessedArray.FullName.IndexOf($_.FullName)
+
+            if ($_.LastWriteTime -gt $ProcessedArray[$IndexVal].LastWriteTime) {
+                [double]$Duration = & $ffPath -loglevel error -show_entries format=duration -print_format default=nokey=1:noprint_wrappers=1 $_.FullName
+
+                # Update object values.
+                $ProcessedArray[$IndexVal].LastWriteTime = $_.LastWriteTime
+                $ProcessedArray[$IndexVal].Duration = $Duration
+            }
         }
 
         $Progress += 1
