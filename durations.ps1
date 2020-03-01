@@ -23,7 +23,8 @@ if (-not ((Get-Command ffprobe -ErrorAction:Ignore) -or (Get-Command ./ffprobe -
             $FFresponse = Invoke-WebRequest -DisableKeepAlive -Method Get -Uri "http://ffbinaries.com/api/v1/version/latest" -ErrorAction:Stop
         }
         Catch {
-            Write-Host -BackgroundColor Black -ForegroundColor Red "ERROR: Something went wrong with getting ffprobe info."
+            Write-Host -BackgroundColor Black -ForegroundColor Red "ERROR: Unable to get data from ffbinaries API."
+            Write-Host $_
             Start-Sleep -s 2
             Break
         }
@@ -76,7 +77,8 @@ if (-not ((Get-Command ffprobe -ErrorAction:Ignore) -or (Get-Command ./ffprobe -
             }
         }
         Catch {
-            Write-Host -BackgroundColor Black -ForegroundColor Red "ERROR: Something went wrong with getting ffprobe binary."
+            Write-Host -BackgroundColor Black -ForegroundColor Red "ERROR: Something went wrong with processing the ffprobe binary."
+            Write-Host $_
             Start-Sleep -s 2
             Break
         }
@@ -90,17 +92,18 @@ if (-not ((Get-Command ffprobe -ErrorAction:Ignore) -or (Get-Command ./ffprobe -
 # Run check again to allow for use immediately after downloading ffprobe. Store which command was successful.
 if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($ffPath = "ffprobe")) -or ((Get-Command ./ffprobe -ErrorAction:Ignore) -and ($ffPath = "./ffprobe")) ) {
     $Progress = 0
-
     [System.Collections.ArrayList]$ProcessedArray = @()
 
     # If XML file exists, attempt to import it.
     if (Test-Path -Path $xmlFile -PathType Leaf) {
         Try {
-            [System.Collections.ArrayList]$ProcessedArray = Import-Clixml $xmlFile -ErrorAction:Stop
+            $ProcessedArray = Import-Clixml $xmlFile -ErrorAction:Stop
         }
         Catch {
             Write-Host -BackgroundColor Black -ForegroundColor Yellow "Error importing previously processed files."
             Write-Host -BackgroundColor Black -ForegroundColor Yellow "Continuing without previous data."
+            # Re-create just in case something unexpected happened.
+            [System.Collections.ArrayList]$ProcessedArray = @()
         }
     }
 
@@ -118,10 +121,10 @@ if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($ffPath = "ffprobe")) -or 
 
             # Create object to add to array.
             $obj = [pscustomobject]@{
-                FullName = $_.FullName
-                Name = $_.Name
+                FullName      = $_.FullName
+                Name          = $_.Name
                 LastWriteTime = $_.LastWriteTime
-                Duration = $Duration
+                Duration      = $Duration
             }
 
             # Add object to array.
@@ -154,5 +157,5 @@ if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($ffPath = "ffprobe")) -or 
     Out-File -FilePath $OutputFile -InputObject $Output.Trim()
     
     # Export data for the next time the script is run.
-    Export-Clixml -InputObject $ProcessedArray -Path $xmlFile
+    $ProcessedArray | Export-Clixml -Path $xmlFile
 }
