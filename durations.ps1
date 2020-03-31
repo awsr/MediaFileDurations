@@ -123,7 +123,7 @@ if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($FFPath = "ffprobe")) -or 
             $obj = [pscustomobject]@{
                 FullName      = $_.FullName
                 Name          = $_.Name
-                LastWriteTime = $_.LastWriteTime
+                LastWriteTimeUtc = $_.LastWriteTimeUtc
                 Duration      = $Duration
             }
 
@@ -134,11 +134,11 @@ if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($FFPath = "ffprobe")) -or 
             # Get the index value for the whole object based on the index of the FullName value from all processed FullName members.
             $IndexVal = $ProcessedArray.FullName.IndexOf($_.FullName)
 
-            if ($_.LastWriteTime -gt $ProcessedArray[$IndexVal].LastWriteTime) {
+            if ($_.LastWriteTimeUtc -gt $ProcessedArray[$IndexVal].LastWriteTimeUtc) {
                 [double]$Duration = & $FFPath -loglevel error -show_entries format=duration -print_format default=nokey=1:noprint_wrappers=1 $_.FullName
 
                 # Update object values.
-                $ProcessedArray[$IndexVal].LastWriteTime = $_.LastWriteTime
+                $ProcessedArray[$IndexVal].LastWriteTimeUtc = $_.LastWriteTimeUtc
                 $ProcessedArray[$IndexVal].Duration = $Duration
             }
         }
