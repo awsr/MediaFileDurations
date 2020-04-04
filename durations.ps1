@@ -98,11 +98,17 @@ if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($FFPath = "ffprobe")) -or 
     if (Test-Path -Path $XmlFile -PathType Leaf) {
         Try {
             $ProcessedArray = Import-Clixml $XmlFile -ErrorAction:Stop
+            
+            # Verify required member properties exist.
+            $MemberCheck = $ProcessedArray | Get-Member -Name FullName, Name, Duration, LastWriteTimeUtc
+            if ($MemberCheck -ne 4) {
+                throw "Data format mismatch"
+            }
         }
         Catch {
             Write-Host -BackgroundColor Black -ForegroundColor Yellow "Error importing previously processed files."
             Write-Host -BackgroundColor Black -ForegroundColor Yellow "Continuing without previous data."
-            # Re-create just in case something unexpected happened.
+            # Re-create blank array.
             [System.Collections.ArrayList]$ProcessedArray = @()
         }
     }
