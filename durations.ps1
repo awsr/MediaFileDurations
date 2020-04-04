@@ -102,11 +102,16 @@ if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($FFPath = "ffprobe")) -or 
             # Verify required member properties exist.
             $MemberCheck = $ProcessedArray | Get-Member -Name FullName, Name, Duration, LastWriteTimeUtc
             if ($MemberCheck -ne 4) {
-                throw "Data format mismatch"
+                throw "Imported data does not match expected format."
+            }
+
+            # Verify all properties are populated.
+            if (($ProcessedArray.FullName.Count, $ProcessedArray.Name.Count, $ProcessedArray.Duration.Count, $ProcessedArray.LastWriteTimeUtc.Count) -ne $ProcessedArray.Count) {
+                throw "Imported data contains incomplete entries."
             }
         }
         Catch {
-            Write-Host -BackgroundColor Black -ForegroundColor Yellow "Error importing previously processed files."
+            Write-Host -BackgroundColor Black -ForegroundColor Yellow "$_"
             Write-Host -BackgroundColor Black -ForegroundColor Yellow "Continuing without previous data."
             # Re-create blank array.
             [System.Collections.ArrayList]$ProcessedArray = @()
@@ -127,10 +132,10 @@ if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($FFPath = "ffprobe")) -or 
 
             # Create object to add to array.
             $obj = [pscustomobject]@{
-                FullName      = $_.FullName
-                Name          = $_.Name
+                FullName         = $_.FullName
+                Name             = $_.Name
                 LastWriteTimeUtc = $_.LastWriteTimeUtc
-                Duration      = $Duration
+                Duration         = $Duration
             }
 
             # Add object to array.
