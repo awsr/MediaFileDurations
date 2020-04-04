@@ -101,7 +101,7 @@ if ( ((Get-Command ffprobe -ErrorAction:Ignore) -and ($FFPath = "ffprobe")) -or 
             
             # Verify required member properties exist.
             $MemberCheck = $ProcessedArray | Get-Member -Name FullName, Name, Duration, LastWriteTimeUtc
-            if ($MemberCheck -ne 4) {
+            if ($MemberCheck.Count -ne 4) {
                 throw "Imported data does not match expected format."
             }
 
